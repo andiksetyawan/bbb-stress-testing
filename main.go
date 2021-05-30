@@ -51,7 +51,7 @@ func main() {
 					Set("start-fullscreen").
 					Set("--use-fake-device-for-media-stream").
 					Set("--use-fake-ui-for-media-stream").
-					Headless(false)
+					Headless(true)
 
 				url := l.MustLaunch()
 
