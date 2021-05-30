@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/go-rod/rod"
-	"github.com/go-rod/rod/lib/input"
 	"github.com/go-rod/rod/lib/launcher"
 	"log"
 	"net/url"
@@ -61,8 +60,10 @@ func main() {
 				page := rd.MustPage(u).MustWaitLoad()
 				page.MustWaitLoad().MustScreenshot("1.png")
 				page.MustElement(`.input-group input[placeholder="Enter your name!"]`).MustWaitVisible().
-					MustInput(name).MustPress(input.Enter)
+					MustInput(name)
 				page.MustWaitLoad().MustScreenshot("2.png")
+				page.MustElement(`button.join-form`).MustWaitVisible().MustClick()
+				page.MustWaitLoad().MustScreenshot("21.png")
 				page.MustElement(`button[class="lg--Q7ufB buttonWrapper--x8uow button--qv0Xy btn--29prju"`).MustWaitVisible().MustClick()
 				page.MustWaitLoad().MustScreenshot("3.png")
 				page.MustElement(`button[aria-label="Start sharing"`).MustWaitVisible().MustClick()
