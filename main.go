@@ -46,6 +46,7 @@ func main() {
 			go func() {
 				name := fmt.Sprintf("tester-%v", i)
 				l := launcher.New().
+					Set("--disable-gpu").
 					Set("disable-web-security").
 					Set("start-fullscreen").
 					Set("--use-fake-device-for-media-stream").
