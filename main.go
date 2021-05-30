@@ -20,7 +20,8 @@ func main() {
 		}
 	}
 
-	if u := os.Getenv("LINK"); u != "" {
+	u := "https://bpsdmkemendagri.layanan.go.id/b/adm-sge-6dq"
+	//if u := os.Getenv("LINK"); u != "" {
 		link, err := url.Parse(u)
 		if err != nil {
 			log.Println(err)
@@ -74,7 +75,7 @@ func main() {
 			}()
 			time.Sleep(5 * time.Second)
 		}
-	}
+	//}
 
 	var idle = 15
 	if os.Getenv("IDLE") != "" {
