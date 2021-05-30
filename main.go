@@ -59,13 +59,15 @@ func main() {
 				//defer rd.Close()
 
 				page := rd.MustPage(u).MustWaitLoad()
-
+				page.MustWaitLoad().MustScreenshot("1.png")
 				page.MustElement(`.input-group input[placeholder="Enter your name!"]`).MustWaitVisible().
 					MustInput(name).MustPress(input.Enter)
-
+				page.MustWaitLoad().MustScreenshot("2.png")
 				page.MustElement(`button[class="lg--Q7ufB buttonWrapper--x8uow button--qv0Xy btn--29prju"`).MustWaitVisible().MustClick()
+				page.MustWaitLoad().MustScreenshot("3.png")
 				page.MustElement(`button[aria-label="Start sharing"`).MustWaitVisible().MustClick()
 				time.Sleep(5 * time.Second)
+				page.MustWaitLoad().MustScreenshot("4.png")
 				page.MustWaitLoad().MustScreenshot(roomID + "/" + name + ".png")
 				log.Println("saving screenshot :", roomID+"/"+name+".png")
 			}()
