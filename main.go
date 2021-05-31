@@ -13,73 +13,67 @@ import (
 )
 
 func main() {
-	users := 1
+	name, _ := os.Hostname()
+	log.Println("start stress test", name)
+
+	users := 20
 	if os.Getenv("USERS") != "" {
 		if i, err := strconv.Atoi(os.Getenv("USERS")); err == nil && i > 0 {
 			users = i
 		}
 	}
 
-	u := "https://bpsdmkemendagri.layanan.go.id/b/adm-sge-6dq"
-	//if u := os.Getenv("LINK"); u != "" {
-	link, err := url.Parse(u)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	s := strings.Split(link.Path, "/")
-	roomID := s[len(s)-1]
-	log.Println("roomID", roomID)
-
-	_, err = os.Stat(roomID)
-
-	if os.IsNotExist(err) {
-		errDir := os.MkdirAll(roomID, 0755)
-		if errDir != nil {
+	if u := os.Getenv("LINK"); u != "" {
+		link, err := url.Parse(u)
+		if err != nil {
 			log.Println(err)
 			return
 		}
+
+		s := strings.Split(link.Path, "/")
+		roomID := s[len(s)-1]
+		log.Println("roomID", roomID)
+
+		_, err = os.Stat(roomID)
+
+		if os.IsNotExist(err) {
+			errDir := os.MkdirAll(roomID, 0755)
+			if errDir != nil {
+				log.Println(err)
+				return
+			}
+		}
+
+		for i := 0; i < users; i++ {
+			go func() {
+				name := fmt.Sprintf("%v-%v", name, i)
+				l := launcher.New().
+					//Set("--disable-gpu").
+					//Set("disable-web-security").
+					Set("start-fullscreen").
+					Set("--use-fake-device-for-media-stream").
+					Set("--use-fake-ui-for-media-stream").
+					Headless(true)
+
+				url := l.MustLaunch()
+
+				rd := rod.New().ControlURL(url).MustConnect()
+				//defer rd.Close()
+
+				page := rd.MustPage(u).MustWaitLoad()
+				page.MustElement(`.input-group input[placeholder="Enter your name!"]`).MustWaitVisible().
+					MustInput(name)
+				page.MustElement(`button.join-form`).MustWaitVisible().MustClick()
+				page.MustElement(`button[class="lg--Q7ufB buttonWrapper--x8uow button--qv0Xy btn--29prju"`).MustWaitVisible().MustClick()
+				page.MustElement(`button[aria-label="Start sharing"`).MustWaitVisible().MustClick()
+				log.Println(name)
+				time.Sleep(5 * time.Second)
+			}()
+			time.Sleep(5 * time.Second)
+		}
 	}
 
-	for i := 0; i < users; i++ {
-		go func() {
-			name := fmt.Sprintf("tester-%v", i)
-			l := launcher.New().
-				//Set("--disable-gpu").
-				//Set("disable-web-security").
-				Set("start-fullscreen").
-				Set("--use-fake-device-for-media-stream").
-				Set("--use-fake-ui-for-media-stream").
-				Headless(false)
-
-			url := l.MustLaunch()
-
-			rd := rod.New().ControlURL(url).MustConnect()
-			//defer rd.Close()
-
-			page := rd.MustPage(u).MustWaitLoad()
-			page.MustWaitLoad().MustScreenshot("1.png")
-			page.MustElement(`.input-group input[placeholder="Enter your name!"]`).MustWaitVisible().
-				MustInput(name)
-			page.MustWaitLoad().MustScreenshot("2.png")
-			page.MustElement(`button.join-form`).MustWaitVisible().MustClick()
-			page.MustWaitLoad().MustScreenshot("21.png")
-			time.Sleep(5 * time.Second)
-			page.MustElement(`button[aria-label="Close Join audio modal"]`).MustWaitVisible().MustClick()
-			page.MustElement(`button[class="lg--Q7ufB buttonWrapper--x8uow button--qv0Xy btn--29prju"`).MustWaitVisible().MustClick()
-			page.MustWaitLoad().MustScreenshot("3.png")
-			page.MustElement(`button[aria-label="Start sharing"`).MustWaitVisible().MustClick()
-			time.Sleep(5 * time.Second)
-			page.MustWaitLoad().MustScreenshot("4.png")
-			page.MustWaitLoad().MustScreenshot(roomID + "/" + name + ".png")
-			log.Println("saving screenshot :", roomID+"/"+name+".png")
-		}()
-		time.Sleep(5 * time.Second)
-	}
-	//}
-
-	var idle = 15
+	var idle = 100
 	if os.Getenv("IDLE") != "" {
 		if id, err := strconv.Atoi(os.Getenv("IDLE")); err == nil && id > 0 {
 			idle = id
